@@ -7,7 +7,8 @@
     "test": "node --test",
     "lint": "eslint .",
     "tsc": "tsc",
-    "dev": "ts-node-dev --poll index.ts"
+    "dev": "ts-node-dev --poll index.ts",
+    "server": "json-server -p 3001 db.json"
   },
   "keywords": [
     "order",
