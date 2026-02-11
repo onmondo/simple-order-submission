@@ -12,6 +12,8 @@ export type ItemDetails = {
 
 export type OrderItemWithPrice = OrderItem & ItemDetails;
 
+export type OrderToConfirm = OrderItemWithPrice & { confirm: boolean }
+
 export interface OrderInput {
   items: OrderItem[],
   customer: {

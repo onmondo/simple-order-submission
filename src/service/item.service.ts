@@ -11,4 +11,19 @@ export class ItemService {
 
     return data;
   }
+
+  async updateStockById(id: string, currentStock: number) {
+    const response = await fetch(`${baseUrl}/${id}`, {
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stocks: currentStock })
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to update stocks by id');
+    }
+
+    const data: unknown = await response.json()
+
+    return data;
+  }
 }
