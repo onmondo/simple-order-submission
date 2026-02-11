@@ -6,21 +6,21 @@
       "name": "Laptop",
       "description": "14-inch Full HD, 16GB RAM, 512GB SSD",
       "unitPrice": 45000,
-      "stocks": 100
+      "stocks": 3
     },
     {
       "id": "ITEM-002",
       "name": "Wireless Mouse",
       "description": "Ergonomic Bluetooth Mouse",
       "unitPrice": 850,
-      "stocks": 1000
+      "stocks": 10
     },
     {
       "id": "ITEM-003",
       "name": "Mechanical Keyboard",
       "description": "RGB Backlit, Blue Switch",
       "unitPrice": 3200,
-      "stocks": 100
+      "stocks": 6
     }
   ]
 }
