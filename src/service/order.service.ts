@@ -1,11 +1,16 @@
 import { Request } from 'express';
 import { OrderInput, OrderItem, OrderItemWithPrice, OrderToConfirm } from '../dto/order.input.dto';
 import { ConfirmedOrder } from '../dto/order.response.dto';
-import { ItemService } from './item.service';
+import { ItemService } from '../repository/item.repository';
+import { OrderRepository } from '../repository/order.repository';
 
 export class OrderService {
-  constructor(private itemService: ItemService) {
+  constructor(
+    private itemService: ItemService,
+    private orderRepo: OrderRepository
+  ) {
     itemService = new ItemService();
+    orderRepo = new OrderRepository();
   }
 
   async computeTotalPrice(items: OrderItem[]): Promise<number> {
@@ -52,20 +57,31 @@ export class OrderService {
     return orderedItemsToEvaluate;
   }
 
-  private evaluateOrder(orders: OrderToConfirm[]): boolean {
+  private evaluateOrder(orders: OrderToConfirm[]): { confirmed: OrderToConfirm[], rejected: OrderToConfirm[] } {
+    const confirmedOrders = orders.filter(order => order.confirm);
     const rejectedOrders = orders.filter(order => !order.confirm);
-    return rejectedOrders.length > 0;
+    return {
+      confirmed: confirmedOrders,
+      rejected: rejectedOrders
+    };
+  }
+
+  private async updateStock(items: OrderToConfirm[]): Promise<void> {
+    const processStockRetrieval = items.map(item => {
+      console.log('item', item);
+      const computedStock = item.stocks - item.quantity;
+      return this.itemService.updateStockById(item.id, computedStock)
+    });
+    await Promise.all(processStockRetrieval);
   }
 
   async submitOrder(req: Request): Promise<ConfirmedOrder> {
     const request: unknown = req.body;
-    const order = request as OrderInput;
+    const newOrder = request as OrderInput;
 
-    // check stocks available
-    const consolidatedOrders = await this.consolidateOrder(order.items);
-    const hasRejectedOrders = this.evaluateOrder(consolidatedOrders);
-
-    if (hasRejectedOrders) {
+    const allOrders = await this.orderRepo.getAll()
+    const currentOrdersInQueue = allOrders as OrderInput[]
+    if (currentOrdersInQueue && currentOrdersInQueue.length > Number(process.env.ORDER_THRESHOLD)) {
       return {
         orderId: 'id',
         status: 'REJECTED',
@@ -73,12 +89,40 @@ export class OrderService {
       };
     }
 
+    const foundOrder = currentOrdersInQueue.find(order => (order.customer.email === newOrder.customer.email ||
+      order.customer.name === newOrder.customer.name) &&
+      order.items.length === newOrder.items.length)
+    if (foundOrder) {
+      return {
+        orderId: foundOrder.id || 'N/A',
+        status: 'REJECTED',
+        reason: 'ORDER_TOTAL_TOO_HIGH'
+      };
+    }
+
+    // check stocks available
+    const consolidatedOrders = await this.consolidateOrder(newOrder.items);
+    const { confirmed, rejected } = this.evaluateOrder(consolidatedOrders);
+
+    console.log('confirmed', confirmed)
+    console.log('rejected', rejected)
+    if (rejected.length > 0) {
+      return {
+        orderId: 'id',
+        status: 'REJECTED',
+        reason: 'ORDER_TOTAL_TOO_HIGH'
+      };
+    }
+
+    const createdOrderRes = await this.orderRepo.createOrder(newOrder)
+    const createdOrder = createdOrderRes as OrderInput
+    await this.updateStock(confirmed)
+
     // compute total
-    const computedTotal = await this.computeTotalPrice(order.items);
-    console.info(computedTotal);
+    const computedTotal = await this.computeTotalPrice(newOrder.items);
 
     return {
-      orderId: 'test',
+      orderId: createdOrder.id || 'N/A',
       status: "CONFIRMED",
       total: computedTotal,
     };

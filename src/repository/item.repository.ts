@@ -14,6 +14,7 @@ export class ItemService {
 
   async updateStockById(id: string, currentStock: number) {
     const response = await fetch(`${baseUrl}/${id}`, {
+      method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ stocks: currentStock })
     })
