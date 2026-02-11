@@ -1,0 +1,30 @@
+{
+  "name": "simple-order-submission",
+  "version": "1.0.0",
+  "description": "allows a user to submit an order and receive an order status response",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "lint": "eslint .",
+    "dev": "node ."
+  },
+  "keywords": [
+    "order",
+    "submit"
+  ],
+  "author": "John Raymond Blando",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@stylistic/eslint-plugin": "^5.8.0",
+    "eslint": "^9.39.2",
+    "globals": "^17.3.0",
+    "jiti": "^2.6.1",
+    "rimraf": "^6.1.2",
+    "supertest": "^7.2.2",
+    "typescript-eslint": "^8.55.0"
+  }
+}
