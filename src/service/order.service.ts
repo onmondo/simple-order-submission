@@ -1,15 +1,15 @@
 import { Request } from 'express';
 import { OrderInput, OrderItem, OrderItemWithPrice, OrderToConfirm } from '../dto/order.input.dto';
 import { ConfirmedOrder } from '../dto/order.response.dto';
-import { ItemService } from '../repository/item.repository';
+import { ItemRepository } from '../repository/item.repository';
 import { OrderRepository } from '../repository/order.repository';
 
 export class OrderService {
   constructor(
-    private itemService: ItemService,
+    private itemService: ItemRepository,
     private orderRepo: OrderRepository
   ) {
-    itemService = new ItemService();
+    itemService = new ItemRepository();
     orderRepo = new OrderRepository();
   }
 
@@ -127,5 +127,11 @@ export class OrderService {
       status: "CONFIRMED",
       total: computedTotal,
     };
+  }
+
+  async getAllOrders(): Promise<OrderInput[]> {
+    const allOrders = await this.orderRepo.getAll()
+    const currentOrdersInQueue = allOrders as OrderInput[]
+    return currentOrdersInQueue;
   }
 }

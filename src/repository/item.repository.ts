@@ -1,6 +1,6 @@
 const baseUrl = 'http://localhost:3001/items';
 
-export class ItemService {
+export class ItemRepository {
   async getById(id: string) {
     const response = await fetch(`${baseUrl}/${id}`);
 
@@ -21,6 +21,17 @@ export class ItemService {
 
     if (!response.ok) {
       throw new Error('Failed to update stocks by id');
+    }
+
+    const data: unknown = await response.json()
+
+    return data;
+  }
+
+  async getAll() {
+    const response = await fetch(baseUrl);
+    if (!response.ok) {
+      throw new Error('Failed to fetch all items');
     }
 
     const data: unknown = await response.json()
