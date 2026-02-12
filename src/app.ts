@@ -8,7 +8,7 @@ app.use(express.json());
 app.get('/', (_req, res) => {
   res.end('Health check...');
 });
-app.use('/api/order', orderRouter);
+app.use('/api/orders', orderRouter);
 app.use(unknownEndpoint);
 
 export default app;
