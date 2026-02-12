@@ -20,5 +20,6 @@ export interface OrderInput {
   customer: {
     name: string,
     email: string
-  }
+  },
+  expired: boolean
 }

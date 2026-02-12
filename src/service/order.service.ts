@@ -91,7 +91,8 @@ export class OrderService {
 
     const foundOrder = currentOrdersInQueue.find(order => (order.customer.email === newOrder.customer.email ||
       order.customer.name === newOrder.customer.name) &&
-      order.items.length === newOrder.items.length)
+      order.items.length === newOrder.items.length &&
+      !order.expired)
     if (foundOrder) {
       return {
         orderId: foundOrder.id || 'N/A',
