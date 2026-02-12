@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction, Router } from 'express';
 import { OrderService } from '../service/order.service';
 import { OrderInput } from '../dto/order.input.dto';
-import { ItemService } from '../repository/item.repository';
+import { ItemRepository } from '../repository/item.repository';
 import { OrderRepository } from '../repository/order.repository';
 const orderRouter = Router();
 
-const service = new OrderService(new ItemService(), new OrderRepository());
+const service = new OrderService(new ItemRepository(), new OrderRepository());
 
 const validateOrder = (req: Request, res: Response, next: NextFunction) => {
   const request: unknown = req.body;
@@ -37,5 +37,12 @@ orderRouter.post('/', validateOrder, async (req: Request, res: Response) => {
   }
 
 });
+
+orderRouter.get('/', async (_req: Request, res: Response) => {
+  const orders = await service.getAllOrders();
+  res.status(200).json({
+    data: orders
+  })
+})
 
 export default orderRouter;
